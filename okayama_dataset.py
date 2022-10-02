@@ -1,5 +1,6 @@
 import csv
-
+import pandas as pd
+import matplotlib as mpl
 
 
 class OkayamaDataset:
@@ -12,15 +13,21 @@ class OkayamaDataset:
 
     def read_csv(self):
         with open(self.filepath, 'r') as f:
+            print("type of csv reader: ", type(csv.reader(f)))
             return list(csv.reader(f))
 
-    def print_headers(self):
-        print(self.csv_data[9])
+    def get_headers(self):
+        return self.csv_data[9]
+
+    def get_data(self):
+        return self.csv_data[10:]
+
 
 
 def main():
-    dataset = OkayamaDataset(cleaned_file=False)
-    dataset.print_headers()
+    dataset = OkayamaDataset(cleaned_file=True)
+    print(dataset.get_headers())
+    # print(dataset.get_data())
 
 
 if __name__ == '__main__':
