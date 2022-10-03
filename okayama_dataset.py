@@ -1,3 +1,4 @@
+import pandas
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -33,11 +34,11 @@ class OkayamaDataset:
         # This gets the indices of the values not equal to 0.0
         return x.ne(0.0)[x.ne(0.0)].index  # Source: https://stackoverflow.com/questions/52173161/getting-a-list-of-indices-where-pandas-boolean-series-is-true
 
-    def get_values_between_two_rows(self, start_index: int, finish_index: int) -> pd.DataFrame:
+    def get_dataset_two_rows(self, start_index: int, finish_index: int) -> pd.DataFrame:
         return self.csv_data.iloc[start_index:finish_index]
 
     def get_lists_for_plot(self):
-        df = self.get_values_between_two_rows(2, 6548)
+        df = self.get_dataset_two_rows(2, 6548)
 
         # Note: this is really bad code but I just want to get something working for now... I don't know why I found this so hard today
         brake_list = self.convert_series_to_list(df['Brake'])
@@ -65,6 +66,28 @@ class OkayamaDataset:
         ax.legend()
         plt.show()
 
+    def get_sector_information(self, df: pandas.DataFrame):
+        # sourcery skip: merge-dict-assign
+        """
+            Sector lengths are 1km, 1km, 1km, and 700 metres.
+
+            The car travels 3,653 metres so we will let the last sector be 653 metres long for now.
+
+            So we need to split our dataframe into 4 dataframes along the LapDist column at 1000, 2000, 3000, and 3653
+        """
+        # Initialize our dict
+        sectors = {}
+        # Slice the dataset up until LapDist = 1000. Note that we need to convert the LapDist column to a float first
+        sectors['S1'] = df[df['LapDist'].astype({"LapDist" : "float"}) < 1000]
+        sectors['S2'] = df[(df['LapDist'].astype({"LapDist" : "float"}) >= 1000) & (df['LapDist'].astype({"LapDist" : "float"}) < 2000)]
+        sectors['S3'] = df[(df['LapDist'].astype({"LapDist" : "float"}) >= 2000) & (df['LapDist'].astype({"LapDist" : "float"}) < 3000)]
+        sectors['S4'] = df[(df['LapDist'].astype({"LapDist" : "float"}) >= 3000) & (df['LapDist'].astype({"LapDist" : "float"}) < 3653)]
+
+        return sectors
+
+
+
+
 
 
 
@@ -78,8 +101,9 @@ def main():
     # print(dataset.get_headers())
     # print(dataset.get_data())
     # print(dataset.get_rows_where_value_changes('Lap No.'))
-    # print(dataset.get_values_between_two_rows(2, 6548))
-    dataset.plot_lists(*dataset.get_lists_for_plot())
+    df = dataset.get_dataset_two_rows(2, 6548)
+    # dataset.plot_lists(*dataset.get_lists_for_plot())
+    dataset.get_sector_information(df)
 
 
 if __name__ == '__main__':
