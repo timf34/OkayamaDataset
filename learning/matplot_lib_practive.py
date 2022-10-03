@@ -31,7 +31,7 @@ class PlottingPractice:
         print("self.all_ones: ", self.all_ones)
         print("self.one_to_ten: ", self.one_to_ten)
         plt.plot(self.all_ones, self.one_to_ten)
-        plt.show()s
+        plt.show()
 
 
 def main():
