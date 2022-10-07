@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from typing import Union, List
 
 
+# Note: this is all very hardcodey, but it works for what we need tbh. I need to get more comfortable with pandas
+
 class OkayamaDataset:
     def __init__(self, cleaned_file: bool = True):
         if cleaned_file:
@@ -18,6 +20,10 @@ class OkayamaDataset:
 
     def get_headers(self):
         return self.csv_data.columns
+
+    def print_five_rows(self):
+        # Print rows 50 to 55
+        print(self.csv_data.iloc[50:55])
 
     def get_rows_where_value_changes(self, column: Union[str, int]) -> List[int]:
         """
@@ -50,21 +56,37 @@ class OkayamaDataset:
 
         return brake_list, throttle_list, speed_list, x
 
-    def plot_lists(self, brake_list, throttle_list, speed_list, x) -> None:
+    def plot_x_y(self, x: List, y: List) -> None:
         """
-        Plots the lists
-        :param brake_list:
-        :param throttle_list:
-        :param speed_list:
-        :param x:
-        :return:
+            Plot x and y, ensuring that the spacing of y-axis values isn't too crowded for large numbers
         """
+        # Get the max value of y
+        max_y = max(float(i) for i in y)
+        # Get the min value of y
+        min_y = min(float(i) for i in y)
+        # Get the difference between the max and min
+        diff = max_y - min_y
+        # Get the number of ticks we want
+        num_ticks = 2
+        # Get the spacing between ticks
+        tick_spacing = diff / num_ticks
+
+        # And now the same for the x axis
+        max_x = max(float(i) for i in x)
+        min_x = min(float(i) for i in x)
+        diff_x = max_x - min_x
+        num_ticks_x = 2
+        tick_spacing_x = diff_x / num_ticks_x
+
+        # Make the plot
         fig, ax = plt.subplots()
-        ax.plot(x, brake_list, label='Brake')
-        ax.plot(x, throttle_list, label='Throttle')
-        ax.plot(x, speed_list, label='Speed')
-        ax.legend()
+        ax.plot(x, y)
+        ax.set(xlabel='Lap Distance (m)', ylabel='Brake (%)', title='Brake vs Lap Distance')
+        ax.grid()
+        ax.xaxis.set_major_locator(plt.MultipleLocator(tick_spacing_x))
+        ax.yaxis.set_major_locator(plt.MultipleLocator(tick_spacing))
         plt.show()
+
 
     def get_sector_information(self, df: pandas.DataFrame):
         # sourcery skip: merge-dict-assign
@@ -77,6 +99,22 @@ class OkayamaDataset:
         """
         # Initialize our dict
         sectors = {}
+
+        # I am getting SettingWithCopyWarning below, but I don't know how to fix it
+        # Github copilot would instead suggest I use .loc, but that doesn't work either
+        # So it would then
+
+        # Convert the LapDist, Brakem, RPM, Speed and Throttle values to floats from strings, using df.at
+        df.loc[:, 'LapDist'] = df.LapDist.astype(float)
+        df.loc[:, 'Brake'] = df.Brake.astype(float)
+        df.loc[:, 'RPM'] = df.RPM.astype(float)
+        df.loc[:, 'Speed'] = df.Speed.astype(float)
+        df.loc[:, 'Throttle'] = df.Throttle.astype(float)
+
+        # Convert SessionTick, Lap No. to int
+        df.loc[:, 'SessionTick'] = df.SessionTick.astype(int)
+        df.loc[:, 'Lap No.'] = df['Lap No.'].astype(int)
+
         # Slice the dataset up until LapDist = 1000. Note that we need to convert the LapDist column to a float first
         sectors['S1'] = df[df['LapDist'].astype({"LapDist" : "float"}) < 1000]
         sectors['S2'] = df[(df['LapDist'].astype({"LapDist" : "float"}) >= 1000) & (df['LapDist'].astype({"LapDist" : "float"}) < 2000)]
@@ -85,11 +123,21 @@ class OkayamaDataset:
 
         return sectors
 
+    def make_our_plots(self, print_list: bool = False):
+        sectors = self.get_sector_information(self.get_dataset_two_rows(2, 6548))
+        for sector in sectors:
+            print(f"Making plot for sector {sector}")
+            # Get the lists for the plot
+            x = sectors[sector]['LapDist']
+            brake_list = sectors[sector].Brake.tolist()
 
+            # Smooth out the list (remove precipitous drops)
 
+            if print_list:
+                print(f"Here is the raw list: \n {brake_list}")
 
-
-
+            # Make the plot
+            self.plot_x_y(x, brake_list)#
 
     @staticmethod
     def convert_series_to_list(series: pd.Series) -> List:
@@ -99,11 +147,12 @@ class OkayamaDataset:
 def main():
     dataset = OkayamaDataset(cleaned_file=True)
     # print(dataset.get_headers())
+    # dataset.print_five_rows()
     # print(dataset.get_data())
     # print(dataset.get_rows_where_value_changes('Lap No.'))
-    df = dataset.get_dataset_two_rows(2, 6548)
-    # dataset.plot_lists(*dataset.get_lists_for_plot())
-    dataset.get_sector_information(df)
+    #  df = dataset.get_dataset_two_rows(2, 6548)
+    # dataset.get_sector_information(df)
+    dataset.make_our_plots(print_list=True)
 
 
 if __name__ == '__main__':
