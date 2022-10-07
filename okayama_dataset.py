@@ -16,7 +16,25 @@ class OkayamaDataset:
         self.csv_data = self.read_csv()
 
     def read_csv(self):
-        return pd.read_csv(self.filepath, header=9)
+        df = pd.read_csv(self.filepath, header=9)
+
+        # Drop the first 2 rows (these contain weird values)
+        df = df.drop(df.index[0:2])
+
+        # I am getting SettingWithCopyWarning below, but I don't know how to fix it (.loc was supposed to)
+
+        # Convert the LapDist, Brakem, RPM, Speed and Throttle values to floats from strings, using df.at
+        df.loc[:, 'LapDist'] = df.LapDist.astype(float)
+        df.loc[:, 'Brake'] = df.Brake.astype(float)
+        df.loc[:, 'RPM'] = df.RPM.astype(float)
+        df.loc[:, 'Speed'] = df.Speed.astype(float)
+        df.loc[:, 'Throttle'] = df.Throttle.astype(float)
+
+        # Convert SessionTick, Lap No. to int
+        df.loc[:, 'SessionTick'] = df.SessionTick.astype(int)
+        df.loc[:, 'Lap No.'] = df['Lap No.'].astype(int)
+
+        return df
 
     def get_headers(self):
         return self.csv_data.columns
@@ -44,7 +62,7 @@ class OkayamaDataset:
         return self.csv_data.iloc[start_index:finish_index]
 
     def get_lists_for_plot(self):
-        df = self.get_dataset_two_rows(2, 6548)
+        df = self.get_dataset_two_rows(0, 6546)
 
         # Note: this is really bad code but I just want to get something working for now... I don't know why I found this so hard today
         brake_list = self.convert_series_to_list(df['Brake'])
@@ -100,18 +118,6 @@ class OkayamaDataset:
         # Initialize our dict
         sectors = {}
 
-        # I am getting SettingWithCopyWarning below, but I don't know how to fix it (.loc was supposed to)
-
-        # Convert the LapDist, Brakem, RPM, Speed and Throttle values to floats from strings, using df.at
-        df.loc[:, 'LapDist'] = df.LapDist.astype(float)
-        df.loc[:, 'Brake'] = df.Brake.astype(float)
-        df.loc[:, 'RPM'] = df.RPM.astype(float)
-        df.loc[:, 'Speed'] = df.Speed.astype(float)
-        df.loc[:, 'Throttle'] = df.Throttle.astype(float)
-
-        # Convert SessionTick, Lap No. to int
-        df.loc[:, 'SessionTick'] = df.SessionTick.astype(int)
-        df.loc[:, 'Lap No.'] = df['Lap No.'].astype(int)
 
         # Slice the dataset up until LapDist = 1000. Note that we need to convert the LapDist column to a float first
         sectors['S1'] = df[df['LapDist'].astype({"LapDist" : "float"}) < 1000]
