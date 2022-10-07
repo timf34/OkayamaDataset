@@ -100,9 +100,7 @@ class OkayamaDataset:
         # Initialize our dict
         sectors = {}
 
-        # I am getting SettingWithCopyWarning below, but I don't know how to fix it
-        # Github copilot would instead suggest I use .loc, but that doesn't work either
-        # So it would then
+        # I am getting SettingWithCopyWarning below, but I don't know how to fix it (.loc was supposed to)
 
         # Convert the LapDist, Brakem, RPM, Speed and Throttle values to floats from strings, using df.at
         df.loc[:, 'LapDist'] = df.LapDist.astype(float)
