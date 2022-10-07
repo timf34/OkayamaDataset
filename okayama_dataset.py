@@ -49,7 +49,7 @@ class OkayamaDataset:
 
     def get_rows_where_value_changes(self, column: Union[str, int]) -> List[int]:
         """
-        Returns a list of the indices where the value of the column changes
+        Returns a list of the indices where the value of the column changes (mostly a helper function)
         :param column: The column to check for changes
         :return: The row where the value changes
         """
@@ -74,7 +74,7 @@ class OkayamaDataset:
         speed_list = self.convert_series_to_list(df['Speed'])
 
         # What even should the x-axis be? I'm just going to use the index for now
-        x = [i for i in range(len(brake_list))]
+        x = list(range(len(brake_list)))
 
         return brake_list, throttle_list, speed_list, x
 
@@ -109,7 +109,6 @@ class OkayamaDataset:
         ax.yaxis.set_major_locator(plt.MultipleLocator(tick_spacing))
         plt.show()
 
-
     def get_sector_information(self, df: pandas.DataFrame):
         # sourcery skip: merge-dict-assign
         """
@@ -122,12 +121,11 @@ class OkayamaDataset:
         # Initialize our dict
         sectors = {}
 
-
-        # Slice the dataset up until LapDist = 1000. Note that we need to convert the LapDist column to a float first
-        sectors['S1'] = df[df['LapDist'].astype({"LapDist" : "float"}) < 1000]
-        sectors['S2'] = df[(df['LapDist'].astype({"LapDist" : "float"}) >= 1000) & (df['LapDist'].astype({"LapDist" : "float"}) < 2000)]
-        sectors['S3'] = df[(df['LapDist'].astype({"LapDist" : "float"}) >= 2000) & (df['LapDist'].astype({"LapDist" : "float"}) < 3000)]
-        sectors['S4'] = df[(df['LapDist'].astype({"LapDist" : "float"}) >= 3000) & (df['LapDist'].astype({"LapDist" : "float"}) < 3653)]
+        # Slice the dataset up until LapDist = 1000.
+        sectors['S1'] = df[df['LapDist'] < 1000]
+        sectors['S2'] = df[(df['LapDist'] >= 1000) & (df['LapDist'] < 2000)]
+        sectors['S3'] = df[(df['LapDist'] >= 2000) & (df['LapDist'] < 3000)]
+        sectors['S4'] = df[(df['LapDist'] >= 3000) & (df['LapDist'] < 3653)]
 
         return sectors
 
