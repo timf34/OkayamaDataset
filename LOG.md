@@ -1,3 +1,11 @@
+### 7/10/22 (night time)
+
+- Notes:
+  - From looking at the plots, we will definitely need to smooth out the 
+    data. There are moments when the values will drop precipitously. 
+    - [] Clean/ smooth out the data. Get rid of the precipitous drops. 
+
+
 ### 2/10/22
 
 Working notes:
