@@ -13,13 +13,17 @@ class OkayamaDataset:
             self.filepath: str = 'data/okayamaTidiedTelemetry.csv'
         else:
             self.filepath: str = "data/S2_2022_Okayama_Full_MX-5_crexlive_Stint_1.csv"
-        self.csv_data = self.read_csv()
+        self.csv_data = self.read_and_clean_csv()
 
-    def read_csv(self):
+    def read_and_clean_csv(self) -> pd.DataFrame:
+        """
+            This func reads, then cleans (removes first two rows, then converts relatvie columns to floats or ints)
+            it up
+        """
         df = pd.read_csv(self.filepath, header=9)
 
         # Drop the first 2 rows (these contain weird values)
-        df = df.drop(df.index[0:2])
+        df = df.drop(df.index[:2])
 
         # I am getting SettingWithCopyWarning below, but I don't know how to fix it (.loc was supposed to)
 
