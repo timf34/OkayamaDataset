@@ -3,6 +3,11 @@ import numpy as np
 import pandas as pd
 
 
+# Note that I will need to plot whatever the results are of interpolating the larger array... to ensure that they are
+# actually correct.
+
+
+
 class ExtendArrayUsingInterpolation:
     def __init__(self):
         self.test_array = np.array([0, 1, 2, 3, 3.5, 5])
@@ -35,6 +40,7 @@ class ExtendArrayUsingInterpolation:
         # Note: this won't work as the number of indices (length) of the dataframe is the same as the number of values
         # And its just not working rn... but it doens't matter, I'll be using one of the methods above.
         # print("extended dataframe using pandas.interpolate: \n", self.test_dataframe.interpolate("quadratic"))
+
 
 
 def main() -> None:
