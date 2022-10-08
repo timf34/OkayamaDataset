@@ -163,41 +163,21 @@ class OkayamaDataset:
 
         return sectors
 
-    def create_a_larger_extrapolated_x_y_axis(self, x, y):
+    @staticmethod
+    def create_a_larger_extrapolated_x_y_axis(x, y):
         """
             This function takes in a list of x and y values and returns a new list of x and y values that is 10x longer
             than the original list. The new list is created by interpolating the original list.
         """
-        print(len(x))
-        # Add 2 to the last value of x
-        print("old x",  x)
-        temp_x = x.copy()
+        # Add 2 to the last value of x (this is arbitrary, just testing if it works)
+        temp_x = x.copy()  # Have to use a copy of x... otherwise it would change the original x
         temp_x[-1] += 2
-        print(len(x))
-
-        print("here wer goodo ")
-        print(x)
-        # Create a new list of x values that is 10x longer than the original list
-        new_x = np.linspace(x[0], temp_x[-1], int(len(x) * 1.0))
-
+        # Create a new list of x values that is the same size as the original vector.
+        new_x = np.linspace(temp_x[0], temp_x[-1], num=len(x))
         # Convert np array to list and print
         new_x = new_x.tolist()
-        print(new_x)
-
         # Create a new list of y values that is 10x longer than the original list
         new_y = np.interp(new_x, new_x, y)
-
-        print("length of old x: ", len(x))
-        print("length of new x: ", len(new_x))
-
-        print("length of old y: ", len(y))
-        print("length of new y: ", len(new_y))
-
-        print("Here is old x: ", x)
-        print("Here is new x: ", new_x)
-
-        print("Here is old y: ", y)
-        print("Here is new y: ", new_y)
 
         return new_x, new_y
 
