@@ -4,7 +4,7 @@ import pandas
 import pandas as pd
 
 from copy import deepcopy
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Tuple
 
 
 # Note: this is all very hardcodey, but it works for what we need tbh. I need to get more comfortable with pandas
@@ -164,14 +164,14 @@ class OkayamaDataset:
         return sectors
 
     @staticmethod
-    def create_a_larger_extrapolated_x_y_axis(x, y):
+    def create_a_larger_extrapolated_x_y_axis(x: List[float], y: List[float]) -> Tuple[List[float], List[float]]:
         """
             This function takes in a list of x and y values and returns a new list of x and y values that is 10x longer
             than the original list. The new list is created by interpolating the original list.
         """
         # Add 2 to the last value of x (this is arbitrary, just testing if it works)
         temp_x = x.copy()  # Have to use a copy of x... otherwise it would change the original x
-        temp_x[-1] += 2
+        temp_x[-1] += 2  # This works for adding or subtracting!
         # Create a new list of x values that is the same size as the original vector.
         new_x = np.linspace(temp_x[0], temp_x[-1], num=len(x))
         # Convert np array to list and print
