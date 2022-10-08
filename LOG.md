@@ -4,6 +4,10 @@
   - From looking at the plots, we will definitely need to smooth out the 
     data. There are moments when the values will drop precipitously. 
     - [] Clean/ smooth out the data. Get rid of the precipitous drops. 
+  - **A big thing to note is that the sector timings are very different in 
+  this dataset compared to the live timings on the superTaikyu website (I'm
+  guessing those are for a different race.**
+    - The sector timings are: 25.6, 25.8, 36.3, 17.3
 
 
 ### 2/10/22
