@@ -87,7 +87,7 @@ class OkayamaDataset:
 
         return brake_list, throttle_list, speed_list, x
 
-    def plot_x_y(self, x: List, y: List) -> None:
+    def plot_x_y(self, x: List, y: List, y_axis_name: str, sector_number: str) -> None:
         """
             Plot x and y, ensuring that the spacing of y-axis values isn't too crowded for large numbers
         """
@@ -112,7 +112,7 @@ class OkayamaDataset:
         # Make the plot
         fig, ax = plt.subplots()
         ax.plot(x, y)
-        ax.set(xlabel='Lap Distance (m)', ylabel='Brake (%)', title='Brake vs Lap Distance')
+        ax.set(xlabel='Lap Distance (m)', ylabel=f'{y_axis_name}', title=f'{sector_number} {y_axis_name} vs Sector Time')
         ax.grid()
         ax.xaxis.set_major_locator(plt.MultipleLocator(tick_spacing_x))
         ax.yaxis.set_major_locator(plt.MultipleLocator(tick_spacing))
@@ -167,18 +167,21 @@ class OkayamaDataset:
 
         list_of_data_to_plot = ["Brake", "Throttle", "Speed", "RPM", "Gear"]
         for sector in sectors:
-            print(f"Making plot for sector {sector}")
-            # Get the lists for the plot
+            print(f"Making plots for sector {sector}")
+            for y_axis_name in list_of_data_to_plot:
 
-            # x = sectors[sector]['LapDist'].tolist()  # If we want to use lap distance as the x-axis
-            x = sectors[sector][f"{sector}SecondTiming"].tolist()
-            brake_list = sectors[sector].Brake.tolist()
+                # Get the y-axis data
+                y: List = sectors[sector][y_axis_name].tolist()
 
-            if print_list:
-                print(f"Here is the raw list: \n {brake_list}")
+                # Get the x-axis data
+                # x = sectors[sector]['LapDist'].tolist()  # If we want to use lap distance as the x-axis
+                x: List = sectors[sector][f"{sector}SecondTiming"].tolist()
 
-            # Make the plot
-            self.plot_x_y(x, brake_list)#
+                if print_list:
+                    print(f"Here is the raw list: \n {y}")
+
+                # Make the plot
+                self.plot_x_y(x=x, y=y, y_axis_name=y_axis_name, sector_number=sector)
 
     @staticmethod
     def convert_series_to_list(series: pd.Series) -> List:
@@ -188,13 +191,13 @@ class OkayamaDataset:
 def main():
     dataset = OkayamaDataset(cleaned_file=True)
     # dataset.add_full_lap_timing_columns()
-    print(dataset.get_headers())
+    # print(dataset.get_headers())
     # dataset.print_five_rows()
     # print(dataset.get_data())
     print(dataset.get_rows_where_value_changes('Lap No.'))
     #  df = dataset.get_dataset_two_rows(2, 6548)
     # dataset.get_sector_information(df)
-    # dataset.make_our_plots(print_list=True)
+    dataset.make_our_plots(print_list=False)
 
 
 if __name__ == '__main__':
