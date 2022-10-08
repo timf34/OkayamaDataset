@@ -128,7 +128,7 @@ class OkayamaDataset:
         # Note: this seems hard to do in a general way, so I'm actually going to hard code a lot of it.
 
         # Sector 1
-        df_dict['S1']['S1TickTiming'] = deepcopy(df_dict['S1'].loc[:, "SessionTick"] - 39950)  # 39951 is the SessionTick value for the start of 1st sector
+        df_dict['S1']['S1TickTiming'] = deepcopy(df_dict['S1'].loc[:, "SessionTick"] - 39949)  # 39951 is the SessionTick value for the start of 1st sector
         df_dict['S1']['S1SecondTiming'] = deepcopy(df_dict['S1']['S1TickTiming'] / 60)
 
         df_dict['S2']['S2TickTiming'] = deepcopy(df_dict['S2'].loc[:, "SessionTick"] - 41726)  # 41726 is the SessionTick value for the start of the 2nd sector (not the 2nd lap!)
@@ -163,13 +163,15 @@ class OkayamaDataset:
         return sectors
 
     def make_our_plots(self, print_list: bool = False):
-        sectors = self.get_sector_information(self.get_dataset_two_rows(0, 6548))
+        sectors = self.get_sector_information(self.get_dataset_two_rows(0, 6546))  # Note that these must be 0 and 6546... otherwise we'll get some overflow.
+
+        list_of_data_to_plot = ["Brake", "Throttle", "Speed", "RPM", "Gear"]
         for sector in sectors:
             print(f"Making plot for sector {sector}")
             # Get the lists for the plot
-            x = sectors[sector]['LapDist'].tolist()
-            # x = sectors[sector][f"{sector}SecondTiming"]
-            print(x)
+
+            # x = sectors[sector]['LapDist'].tolist()  # If we want to use lap distance as the x-axis
+            x = sectors[sector][f"{sector}SecondTiming"].tolist()
             brake_list = sectors[sector].Brake.tolist()
 
             if print_list:
@@ -186,13 +188,13 @@ class OkayamaDataset:
 def main():
     dataset = OkayamaDataset(cleaned_file=True)
     # dataset.add_full_lap_timing_columns()
-    # print(dataset.get_headers())
+    print(dataset.get_headers())
     # dataset.print_five_rows()
     # print(dataset.get_data())
     print(dataset.get_rows_where_value_changes('Lap No.'))
     #  df = dataset.get_dataset_two_rows(2, 6548)
     # dataset.get_sector_information(df)
-    dataset.make_our_plots(print_list=True)
+    # dataset.make_our_plots(print_list=True)
 
 
 if __name__ == '__main__':
