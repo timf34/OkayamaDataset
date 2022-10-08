@@ -131,8 +131,6 @@ class OkayamaDataset:
         df_dict['S1']['S1TickTiming'] = deepcopy(df_dict['S1'].loc[:, "SessionTick"] - 39950)  # 39951 is the SessionTick value for the start of 1st sector
         df_dict['S1']['S1SecondTiming'] = deepcopy(df_dict['S1']['S1TickTiming'] / 60)
 
-        print("headers after s1: ", df_dict['S1'].columns)
-
         df_dict['S2']['S2TickTiming'] = deepcopy(df_dict['S2'].loc[:, "SessionTick"] - 41726)  # 41726 is the SessionTick value for the start of the 2nd sector (not the 2nd lap!)
         df_dict['S2']['S2SecondTiming'] = deepcopy(df_dict['S2']['S2TickTiming'] / 60)
 
@@ -169,10 +167,10 @@ class OkayamaDataset:
         for sector in sectors:
             print(f"Making plot for sector {sector}")
             # Get the lists for the plot
-            x = sectors[sector]['LapDist']
+            x = sectors[sector]['LapDist'].tolist()
+            # x = sectors[sector][f"{sector}SecondTiming"]
+            print(x)
             brake_list = sectors[sector].Brake.tolist()
-
-            # Smooth out the list (remove precipitous drops)
 
             if print_list:
                 print(f"Here is the raw list: \n {brake_list}")
