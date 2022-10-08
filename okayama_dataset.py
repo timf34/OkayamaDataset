@@ -10,6 +10,11 @@ from typing import Union, List, Dict, Tuple
 # Note: this is all very hardcodey, but it works for what we need tbh. I need to get more comfortable with pandas
 
 class OkayamaDataset:
+    """
+        This class was primarily working with the dataset, to extract action baslines.
+        I will save these action baslines locally, and create another class for merging with the Web Scraping data
+    """
+
     def __init__(self, cleaned_file: bool = True):
         if cleaned_file:
             self.filepath: str = 'data/okayamaTidiedTelemetry.csv'
@@ -207,6 +212,10 @@ class OkayamaDataset:
     @staticmethod
     def convert_series_to_list(series: pd.Series) -> List:
         return series.tolist()
+
+    @staticmethod
+    def save_numpy_arrays(array: np. array, filename: str):
+        np.save(filename, array)
 
 
 def main():
