@@ -2,7 +2,8 @@ import pandas
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from typing import Union, List
+from copy import deepcopy
+from typing import Union, List, Dict
 
 
 # Note: this is all very hardcodey, but it works for what we need tbh. I need to get more comfortable with pandas
@@ -47,6 +48,14 @@ class OkayamaDataset:
         # Print rows 50 to 55
         print(self.csv_data.iloc[50:55])
 
+    def add_full_lap_timing_columns(self):
+        # Note: I am only going to work with Lap 1 for now, so this function will just work with that assumption
+
+        # Add a Lap1 column that's the same as SessionTick, but subtracts 39951 from each value up to row 6948
+        self.csv_data['Lap1TickTiming'] = self.csv_data.loc[:6948, 'SessionTick'] - 39951
+        # Now add another column that converts Lap1TickTiming to seconds
+        self.csv_data['Lap1SecondTiming'] = self.csv_data.loc[:6948, 'Lap1TickTiming'] / 60
+
     def get_rows_where_value_changes(self, column: Union[str, int]) -> List[int]:
         """
         Returns a list of the indices where the value of the column changes (mostly a helper function)
@@ -60,7 +69,7 @@ class OkayamaDataset:
         x = self.csv_data.iloc[:, column].dropna().diff()
 
         # This gets the indices of the values not equal to 0.0
-        return x.ne(0.0)[x.ne(0.0)].index  # Source: https://stackoverflow.com/questions/52173161/getting-a-list-of-indices-where-pandas-boolean-series-is-true
+        return x.ne(0.0)[x.ne(0.0)].index  # Source: https://stackoverflow.com/questions/52173161/getting-a-list-of-indices-where-pandas-boolean-series-is-tru
 
     def get_dataset_two_rows(self, start_index: int, finish_index: int) -> pd.DataFrame:
         return self.csv_data.iloc[start_index:finish_index]
@@ -109,6 +118,31 @@ class OkayamaDataset:
         ax.yaxis.set_major_locator(plt.MultipleLocator(tick_spacing))
         plt.show()
 
+    @staticmethod
+    def add_sector_timing_columns(df_dict: Dict[str, pandas.DataFrame]) -> None:
+        """
+            This function accepts the dict with the dataframes for each sector from below.
+            It then adds a timing column for each of those df's in seconds and in ticks (60FPS) to the same
+            df.
+        """
+        # Note: this seems hard to do in a general way, so I'm actually going to hard code a lot of it.
+
+        # Sector 1
+        df_dict['S1']['S1TickTiming'] = deepcopy(df_dict['S1'].loc[:, "SessionTick"] - 39950)  # 39951 is the SessionTick value for the start of 1st sector
+        df_dict['S1']['S1SecondTiming'] = deepcopy(df_dict['S1']['S1TickTiming'] / 60)
+
+        print("headers after s1: ", df_dict['S1'].columns)
+
+        df_dict['S2']['S2TickTiming'] = deepcopy(df_dict['S2'].loc[:, "SessionTick"] - 41726)  # 41726 is the SessionTick value for the start of the 2nd sector (not the 2nd lap!)
+        df_dict['S2']['S2SecondTiming'] = deepcopy(df_dict['S2']['S2TickTiming'] / 60)
+
+        df_dict['S3']['S3TickTiming'] = deepcopy(df_dict['S3'].loc[:, "SessionTick"] - 43277)  # 43277 is the SessionTick value for the start of the 3rd sector
+        df_dict['S3']['S3SecondTiming'] = deepcopy(df_dict['S3']['S3TickTiming'] / 60)
+
+        df_dict['S4']['S4TickTiming'] = deepcopy(df_dict['S4'].loc[:, "SessionTick"] - 45455)  # 45455 is the SessionTick value for the start of the 4th sector
+        df_dict['S4']['S4SecondTiming'] = deepcopy(df_dict['S4']['S4TickTiming'] / 60)
+
+
     def get_sector_information(self, df: pandas.DataFrame):
         # sourcery skip: merge-dict-assign
         """
@@ -126,11 +160,12 @@ class OkayamaDataset:
         sectors['S2'] = df[(df['LapDist'] >= 1000) & (df['LapDist'] < 2000)]
         sectors['S3'] = df[(df['LapDist'] >= 2000) & (df['LapDist'] < 3000)]
         sectors['S4'] = df[(df['LapDist'] >= 3000) & (df['LapDist'] < 3653)]
+        self.add_sector_timing_columns(sectors)  # Add timing columns to each sector df
 
         return sectors
 
     def make_our_plots(self, print_list: bool = False):
-        sectors = self.get_sector_information(self.get_dataset_two_rows(2, 6548))
+        sectors = self.get_sector_information(self.get_dataset_two_rows(0, 6548))
         for sector in sectors:
             print(f"Making plot for sector {sector}")
             # Get the lists for the plot
@@ -152,10 +187,11 @@ class OkayamaDataset:
 
 def main():
     dataset = OkayamaDataset(cleaned_file=True)
+    # dataset.add_full_lap_timing_columns()
     # print(dataset.get_headers())
     # dataset.print_five_rows()
     # print(dataset.get_data())
-    # print(dataset.get_rows_where_value_changes('Lap No.'))
+    print(dataset.get_rows_where_value_changes('Lap No.'))
     #  df = dataset.get_dataset_two_rows(2, 6548)
     # dataset.get_sector_information(df)
     dataset.make_our_plots(print_list=True)
