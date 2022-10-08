@@ -1,6 +1,7 @@
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from copy import deepcopy
 from typing import Union, List, Dict
@@ -112,7 +113,7 @@ class OkayamaDataset:
         # Make the plot
         fig, ax = plt.subplots()
         ax.plot(x, y)
-        ax.set(xlabel='Lap Distance (m)', ylabel=f'{y_axis_name}', title=f'{sector_number} {y_axis_name} vs Sector Time')
+        ax.set(xlabel='Sector Time (s)', ylabel=f'{y_axis_name}', title=f'{sector_number} {y_axis_name} vs Sector Time')
         ax.grid()
         ax.xaxis.set_major_locator(plt.MultipleLocator(tick_spacing_x))
         ax.yaxis.set_major_locator(plt.MultipleLocator(tick_spacing))
@@ -162,6 +163,44 @@ class OkayamaDataset:
 
         return sectors
 
+    def create_a_larger_extrapolated_x_y_axis(self, x, y):
+        """
+            This function takes in a list of x and y values and returns a new list of x and y values that is 10x longer
+            than the original list. The new list is created by interpolating the original list.
+        """
+        print(len(x))
+        # Add 2 to the last value of x
+        print("old x",  x)
+        temp_x = x.copy()
+        temp_x[-1] += 2
+        print(len(x))
+
+        print("here wer goodo ")
+        print(x)
+        # Create a new list of x values that is 10x longer than the original list
+        new_x = np.linspace(x[0], temp_x[-1], int(len(x) * 1.0))
+
+        # Convert np array to list and print
+        new_x = new_x.tolist()
+        print(new_x)
+
+        # Create a new list of y values that is 10x longer than the original list
+        new_y = np.interp(new_x, new_x, y)
+
+        print("length of old x: ", len(x))
+        print("length of new x: ", len(new_x))
+
+        print("length of old y: ", len(y))
+        print("length of new y: ", len(new_y))
+
+        print("Here is old x: ", x)
+        print("Here is new x: ", new_x)
+
+        print("Here is old y: ", y)
+        print("Here is new y: ", new_y)
+
+        return new_x, new_y
+
     def make_our_plots(self, print_list: bool = False):
         sectors = self.get_sector_information(self.get_dataset_two_rows(0, 6546))  # Note that these must be 0 and 6546... otherwise we'll get some overflow.
 
@@ -172,16 +211,18 @@ class OkayamaDataset:
 
                 # Get the y-axis data
                 y: List = sectors[sector][y_axis_name].tolist()
-
                 # Get the x-axis data
                 # x = sectors[sector]['LapDist'].tolist()  # If we want to use lap distance as the x-axis
                 x: List = sectors[sector][f"{sector}SecondTiming"].tolist()
+
+                new_x, new_y = self.create_a_larger_extrapolated_x_y_axis(x, y)
 
                 if print_list:
                     print(f"Here is the raw list: \n {y}")
 
                 # Make the plot
                 self.plot_x_y(x=x, y=y, y_axis_name=y_axis_name, sector_number=sector)
+                self.plot_x_y(x=new_x, y=new_y, y_axis_name=y_axis_name, sector_number=sector)
 
     @staticmethod
     def convert_series_to_list(series: pd.Series) -> List:
