@@ -292,8 +292,6 @@ class OkayamaDataset:
         save_dict_as_json(output_path=self.json_output_path, _dict=temp_dict)
 
 
-
-
 def main():
     dataset = OkayamaDataset(cleaned_file=True)
     # dataset.add_full_lap_timing_columns()
