@@ -27,8 +27,8 @@ class ConvertInterval:
 class ChangeNumElements:
     def __init__(self):
         self.test_list1 = [0., 1., 2., 3., 4., 4.5, 5.07, 2.3, 1.0]
-        self.test_list2 = [0., 1., 2., 3., 4., 4.5, 5.07, 5.5, 0.2, 0.5, 1.02, 12]
-        self.num_elements: int = 5
+        self.test_list2 = [6., 1., 2., 3., 4., 4.5, 5.07, 5.5, 0.2, 0.5, 1.02, 12]
+        self.num_elements: int = 15
 
     def change_num_elements(self, _list: List[float]) -> None:
         """
@@ -42,6 +42,10 @@ class ChangeNumElements:
         # This performs pretty well.
         new_list = np.interp(np.linspace(0, len(_list) - 1, self.num_elements), np.arange(len(_list)), _list)
         print(f"new_list: {new_list}")
+        print(f"len(new_list): {len(new_list)}")
+
+        # The method above gives better results than the method below (i.e. better with the -1 in the np.linspace)
+        # print(np.interp(np.linspace(0, len(_list), self.num_elements), np.arange(len(_list)), _list))
 
 
 
