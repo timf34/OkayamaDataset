@@ -6,7 +6,7 @@ import pandas as pd
 # Note that I will need to plot whatever the results are of interpolating the larger array... to ensure that they are
 # actually correct.
 
-
+# Note: I may have found a better way to do this, using the np.interp function. See `changing_interval_of_lists.py`
 
 class ExtendArrayUsingInterpolation:
     def __init__(self):
