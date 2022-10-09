@@ -278,7 +278,6 @@ class OkayamaDataset:
                 # Add the new y values to the new dict
                 temp_dict[sector][y_axis_name] = new_y
 
-
                 if print_info:
                     print(f"This is sector {sector}")
 
