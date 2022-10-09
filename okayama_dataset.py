@@ -6,7 +6,7 @@ import pandas as pd
 from copy import deepcopy
 from typing import Union, List, Dict, Tuple
 
-from utils import save_dict_as_json
+from utils import save_dict_as_json, convert_interval_of_list, change_num_elements
 
 # Note: this is all very hardcodey, but it works for what we need tbh. I need to get more comfortable with pandas
 
@@ -205,10 +205,10 @@ class OkayamaDataset:
                 x: List = sectors[sector][f"{sector}SecondTiming"].tolist()
 
                 # Change interval of x-axis
-                x = self.convert_interval_of_list(x)
+                x = convert_interval_of_list(x)
 
                 # Change the num_elements of y to be the same as x
-                y = self.change_num_elements(y, len(x))
+                y = change_num_elements(y, len(x))
 
                 new_x, new_y = self.create_a_larger_extrapolated_x_y_axis(x, y)
 
@@ -226,24 +226,6 @@ class OkayamaDataset:
     @staticmethod
     def save_numpy_arrays(array: np. array, filename: str):
         np.save(filename, array)
-
-    def convert_interval_of_list(self, _list: List[float]) -> List[float]:
-        first_value = 0  # As we are just using this for timing, we can start at 0
-        last_value = _list[-1]
-
-        # Round the last value to the nearest float which ends with .0, 0.25, 0.5, or 0.75
-        # Note: this is so that the last value is always a multiple of 0.25
-        last_value = round(last_value / self.timing_interval) * self.timing_interval
-
-        new_list = np.arange(first_value, last_value + self.timing_interval, self.timing_interval)
-        # Convert np array to list and return
-        return new_list.tolist()
-
-    @staticmethod
-    def change_num_elements(_list: List[float], num_elements: int) -> List[float]:
-        # Use np.interp to create a new list that has num_elements elements
-        new_list = np.interp(np.linspace(0, len(_list) - 1, num_elements), np.arange(len(_list)), _list)
-        return new_list.tolist()
 
     def convert_time_axis_interval(self, print_info: bool = False) -> None:
         """
@@ -268,8 +250,8 @@ class OkayamaDataset:
                 y: List = sectors[sector][y_axis_name].tolist()
 
                 # Make new lists
-                new_x = self.convert_interval_of_list(x)
-                new_y = self.change_num_elements(y, len(new_x))
+                new_x = convert_interval_of_list(x, timing_interval=self.timing_interval)
+                new_y = change_num_elements(y, len(new_x))
 
                 # Save the x-axis to our dict just once per sector
                 if count == 0:
