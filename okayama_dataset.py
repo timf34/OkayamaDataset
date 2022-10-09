@@ -228,7 +228,7 @@ class OkayamaDataset:
         np.save(filename, array)
 
     def convert_interval_of_list(self, _list: List[float]) -> List[float]:
-        first_value = _list[0]
+        first_value = 0  # As we are just using this for timing, we can start at 0
         last_value = _list[-1]
 
         # Round the last value to the nearest float which ends with .0, 0.25, 0.5, or 0.75
