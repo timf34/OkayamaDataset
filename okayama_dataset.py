@@ -202,6 +202,12 @@ class OkayamaDataset:
                 # x = sectors[sector]['LapDist'].tolist()  # If we want to use lap distance as the x-axis
                 x: List = sectors[sector][f"{sector}SecondTiming"].tolist()
 
+                # Change interval of x-axis
+                x = self.convert_interval_of_list(x)
+
+                # Change the num_elements of y to be the same as x
+                y = self.change_num_elements(y, len(x))
+
                 new_x, new_y = self.create_a_larger_extrapolated_x_y_axis(x, y)
 
                 if print_list:
@@ -225,11 +231,7 @@ class OkayamaDataset:
 
         # Round the last value to the nearest float which ends with .0, 0.25, 0.5, or 0.75
         # Note: this is so that the last value is always a multiple of 0.25
-        print(f"Last value before rounding: {last_value}")
         last_value = round(last_value / self.timing_interval) * self.timing_interval
-
-        print(f"First value: {first_value}")
-        print(f"Last value: {last_value}")
 
         new_list = np.arange(first_value, last_value + self.timing_interval, self.timing_interval)
         # Convert np array to list and return
@@ -241,27 +243,45 @@ class OkayamaDataset:
         new_list = np.interp(np.linspace(0, len(_list) - 1, num_elements), np.arange(len(_list)), _list)
         return new_list.tolist()
 
-    def convert_time_axis_interval(self):
+    def convert_time_axis_interval(self, print_info: bool = False):
         sectors = self.get_sector_information(self.get_dataset_two_rows(0, 6546))
+        list_of_data_to_plot = ["Brake", "Throttle", "Speed", "RPM", "Gear"]
+
+        # Initializing our dict
+        temp_dict = {"S1": {}, "S2": {}, "S3": {}, "S4": {}}
+        for sector in sectors:
+            for key in list_of_data_to_plot:
+                temp_dict[sector][key] = []
 
         for sector in sectors:
-            print(f"This is sector {sector}")
-            # Get the x and y axes data
-            x: List = sectors[sector][f"{sector}SecondTiming"].tolist()
-            y: List = sectors[sector]['Brake'].tolist()
+            for y_axis_name in list_of_data_to_plot:
+                # Get the x and y axes data
+                x: List = sectors[sector][f"{sector}SecondTiming"].tolist()
+                y: List = sectors[sector][y_axis_name].tolist()
 
-            print(f"Here is the raw y axis list: \n {y}")
-            print(f"Here is the raw x axis list: \n {x}")
-            print(f"Here is the length of x and y: {len(x)} - {len(y)}")
+                # Make new lists
+                new_x = self.convert_interval_of_list(x)
+                new_y = self.change_num_elements(y, len(new_x))
 
-            new_x = self.convert_interval_of_list(x)
-            new_y = self.change_num_elements(y, len(new_x))
+                # new_dict[sector][y_axis_name] = new_y
 
-            print(f"Here is the new x axis list: \n {new_x}")
-            print(f"Here is the new y axis list: \n {new_y}")
-            print(f"Here is the length of new_x and new_y: {len(new_x)} - {len(new_y)}")
+                # Add the new y values to the new dict
+                temp_dict[sector][y_axis_name].append(new_y)
 
-            print("\n\n")
+                if print_info:
+                    print(f"This is sector {sector}")
+
+                    print(f"Here is the raw y axis list: \n {y}")
+                    print(f"Here is the raw x axis list: \n {x}")
+                    print(f"Here is the length of x and y: {len(x)} - {len(y)}")
+
+                    print(f"Here is the new x axis list: \n {new_x}")
+                    print(f"Here is the new y axis list: \n {new_y}")
+                    print(f"Here is the length of new_x and new_y: {len(new_x)} - {len(new_y)}")
+
+
+        print(temp_dict)
+
 
 
 def main():
