@@ -6,6 +6,7 @@ import pandas as pd
 from copy import deepcopy
 from typing import Union, List, Dict, Tuple
 
+from utils import save_dict_as_json
 
 # Note: this is all very hardcodey, but it works for what we need tbh. I need to get more comfortable with pandas
 
@@ -23,6 +24,7 @@ class OkayamaDataset:
         self.csv_data = self.read_and_clean_csv()
 
         self.timing_interval: float = 0.25
+        self.json_output_path: str = "data/okayama_action_baselines.json"
 
     def read_and_clean_csv(self) -> pd.DataFrame:
         """
@@ -243,7 +245,12 @@ class OkayamaDataset:
         new_list = np.interp(np.linspace(0, len(_list) - 1, num_elements), np.arange(len(_list)), _list)
         return new_list.tolist()
 
-    def convert_time_axis_interval(self, print_info: bool = False):
+    def convert_time_axis_interval(self, print_info: bool = False) -> None:
+        """
+            This function converts the time axis interval to 0.25, and then changes the other lists accordingly.
+
+            It then saves this to a json file as a dict.
+        """
         sectors = self.get_sector_information(self.get_dataset_two_rows(0, 6546))
         list_of_data_to_plot = ["Brake", "Throttle", "Speed", "RPM", "Gear"]
 
@@ -254,7 +261,8 @@ class OkayamaDataset:
                 temp_dict[sector][key] = []
 
         for sector in sectors:
-            for y_axis_name in list_of_data_to_plot:
+
+            for count, y_axis_name in enumerate(list_of_data_to_plot):
                 # Get the x and y axes data
                 x: List = sectors[sector][f"{sector}SecondTiming"].tolist()
                 y: List = sectors[sector][y_axis_name].tolist()
@@ -263,10 +271,13 @@ class OkayamaDataset:
                 new_x = self.convert_interval_of_list(x)
                 new_y = self.change_num_elements(y, len(new_x))
 
-                # new_dict[sector][y_axis_name] = new_y
+                # Save the x-axis to our dict just once per sector
+                if count == 0:
+                    temp_dict[sector][f"{sector}SecondTiming"] = new_x
 
                 # Add the new y values to the new dict
-                temp_dict[sector][y_axis_name].append(new_y)
+                temp_dict[sector][y_axis_name] = new_y
+
 
                 if print_info:
                     print(f"This is sector {sector}")
@@ -279,8 +290,8 @@ class OkayamaDataset:
                     print(f"Here is the new y axis list: \n {new_y}")
                     print(f"Here is the length of new_x and new_y: {len(new_x)} - {len(new_y)}")
 
+        save_dict_as_json(output_path=self.json_output_path, _dict=temp_dict)
 
-        print(temp_dict)
 
 
 
