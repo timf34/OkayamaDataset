@@ -206,7 +206,7 @@ class OkayamaDataset:
                 x: List = sectors[sector][f"{sector}SecondTiming"].tolist()
 
                 # Change interval of x-axis
-                x = convert_interval_of_list(x)
+                x = convert_interval_of_list(x, timing_interval=self.timing_interval)
 
                 # Change the num_elements of y to be the same as x
                 y = change_num_elements(y, len(x))
@@ -285,7 +285,7 @@ def main():
     #  df = dataset.get_dataset_two_rows(2, 6548)
     # dataset.get_sector_information(df)
     # dataset.make_our_plots(print_list=False)
-    dataset.convert_time_axis_interval()
+    # dataset.convert_time_axis_interval()
 
 
 if __name__ == '__main__':
