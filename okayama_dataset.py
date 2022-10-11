@@ -151,7 +151,6 @@ class OkayamaDataset:
         df_dict['S4']['S4TickTiming'] = deepcopy(df_dict['S4'].loc[:, "SessionTick"] - 45455)  # 45455 is the SessionTick value for the start of the 4th sector
         df_dict['S4']['S4SecondTiming'] = deepcopy(df_dict['S4']['S4TickTiming'] / 60)
 
-
     def get_sector_information(self, df: pandas.DataFrame):
         # sourcery skip: merge-dict-assign
         """
@@ -176,8 +175,8 @@ class OkayamaDataset:
     @staticmethod
     def create_a_larger_extrapolated_x_y_axis(x: List[float], y: List[float]) -> Tuple[List[float], List[float]]:
         """
-            This function takes in a list of x and y values and returns a new list of x and y values that is 10x longer
-            than the original list. The new list is created by interpolating the original list.
+            This function takes in a list of x and y values and returns a new list of x and y values where the x-axis
+            is 2 seconds longer, and matches the y-axis values accordingly.
         """
         # Add 2 to the last value of x (this is arbitrary, just testing if it works)
         temp_x = x.copy()  # Have to use a copy of x... otherwise it would change the original x
